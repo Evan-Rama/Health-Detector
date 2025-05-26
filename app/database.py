@@ -3,6 +3,7 @@ import psycopg2
 from psycopg2 import sql
 import os
 import logging
+import sqlite3
 
 load_dotenv()
 
@@ -86,6 +87,29 @@ def upsert_patient_data(data):
         logging.info("Upsert (insert/update) data pasien berhasil.")
     except Exception as e:
         logging.error(f"Upsert gagal: {e}")
+        raise
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
+
+def fetch_all_patient_data(): 
+    conn = None
+    cur = None
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM patients")
+        
+        columns = [desc[0] for desc in cur.description]
+        rows = cur.fetchall()
+
+        data = [dict(zip(columns, row)) for row in rows]
+        return data
+    
+    except Exception as e:
+        logging.error(f"Gagal mengambil data: {e}")
         raise
     finally:
         if cur:

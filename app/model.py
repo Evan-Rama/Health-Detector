@@ -3,8 +3,8 @@ import pandas as pd
 import joblib
 
 # --- Load Model ---
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # folder 'app' atau tempat model.py
-MODEL_PATH = os.path.join(BASE_DIR, "..", "model", "xgb_model.pkl")  # adjust sesuai struktur folder
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))  
+MODEL_PATH = os.path.join(BASE_DIR, "..", "model", "heart_disease_model.pkl") 
 
 try:
     model = joblib.load(MODEL_PATH)
