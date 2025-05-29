@@ -82,7 +82,6 @@ with st.form("patient_data_form"):
     with col1:
         smoking = st.checkbox("Smoking")
         stroke = st.checkbox("Stroke")
-        diabetic = st.selectbox("Diabetic", ["", "No", "No, Borderline Diabetes", "Yes", "Yes (during pregnancy)"], format_func=lambda x: "Select status" if x == "" else x)
         asthma = st.checkbox("Asthma")
         skin_cancer = st.checkbox("Skin Cancer")
     with col2:
@@ -91,6 +90,7 @@ with st.form("patient_data_form"):
         physical_activity = st.checkbox("Physical Activity")
         kidney_disease = st.checkbox("Kidney Disease")
 
+    diabetic = st.selectbox("Diabetic", ["", "No", "No, Borderline Diabetes", "Yes", "Yes (during pregnancy)"], format_func=lambda x: "Select status" if x == "" else x)
     genhealth = st.selectbox("General Health", ["", "Excellent", "Very Good", "Good", "Fair", "Poor"], format_func=lambda x: "Select status" if x == "" else x)
     sleep_time = st.number_input("Sleep Time (hours per day)", 0, 16, step=1)
 
