@@ -22,7 +22,8 @@ try:
 
         # Ubah risk_prediction dari 0/1 ke NO RISK/RISK untuk tampilan
         if 'risk_prediction' in df.columns:
-            df['risk_prediction'] = df['risk_prediction'].map({0: "NO RISK", 1: "RISK"})
+            df['risk_prediction'] = df['risk_prediction'].map({'0': "NO RISK", '1': "RISK"})
+            print(df['risk_prediction'])
 
         # Format column names (optional)
         df.columns = [col.replace("_", " ").title() for col in df.columns]

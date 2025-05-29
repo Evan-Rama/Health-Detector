@@ -27,7 +27,7 @@ def upsert_patient_data(data):
             "Smoking": "smoking",
             "Alcohol Drinking": "alcohol",
             "Stroke": "stroke",
-            "Diff Walking": "diff_walking",
+            "Difficulty Walking": "diff_walking",
             "Diabetic": "diabetic",
             "Physical Activity": "physical_activity",
             "Asthma": "asthma",
@@ -40,8 +40,10 @@ def upsert_patient_data(data):
             "risk_prediction": "risk_prediction",
             "risk_probability": "risk_probability"
         }
-
+        print(data.items())
         mapped_data = {field_mapping[k]: v for k, v in data.items() if k in field_mapping}
+
+        print(mapped_data)
 
         # Upsert (insert or update) based on phone and email
         response = conn.table("patients").upsert(mapped_data, on_conflict=["phone", "email"]).execute()

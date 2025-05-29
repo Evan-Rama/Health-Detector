@@ -136,7 +136,7 @@ with st.form("patient_data_form"):
                 "General Health": genhealth,
                 "Sleep Time (hours)": sleep_time,
                 "Physical Health Days": physical_health_days,
-                "Mental Health Days": mental_health_days
+                "Mental Health Days": mental_health_days,
             }
 
             df = pd.DataFrame([form_data])
@@ -182,8 +182,8 @@ if st.session_state.form_submitted and st.session_state.df is not None:
                 form_data["risk_probability"] = float(prob)
 
                 # Tambahkan age_category numerik sesuai model
-                form_data["age_category"] = map_age_to_category(int(form_data["Age"]))
-
+                form_data["Age Category"] = map_age_to_category(int(form_data["Age"]))
+                print(form_data)
                 upsert_patient_data(form_data)
                 st.success("Data successfully saved to the database.")
                 st.session_state.reset_form = True
