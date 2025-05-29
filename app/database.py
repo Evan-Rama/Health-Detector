@@ -1,34 +1,18 @@
-from dotenv import load_dotenv
-import psycopg2
-from psycopg2 import sql
-import os
 import logging
-import sqlite3
-
-load_dotenv()
-
-DB_CONFIG = {
-    "host": os.getenv("DB_HOST"),
-    "port": os.getenv("DB_PORT"),
-    "dbname": os.getenv("DB_NAME"),
-    "user": os.getenv("DB_USER"),
-    "password": os.getenv("DB_PASSWORD")
-}
+import streamlit as st
+from st_supabase_connection import SupabaseConnection
 
 def get_connection():
     try:
-        conn = psycopg2.connect(**DB_CONFIG)
+        conn = st.connection("supabase", type=SupabaseConnection)
         return conn
     except Exception as e:
-        logging.error(f"Failed to connect to database: {e}")
+        logging.error(f"Failed to connect to Supabase: {e}")
         raise
 
 def upsert_patient_data(data):
-    conn = None
-    cur = None
     try:
         conn = get_connection()
-        cur = conn.cursor()
 
         field_mapping = {
             "Name": "name",
@@ -57,62 +41,25 @@ def upsert_patient_data(data):
             "risk_probability": "risk_probability"
         }
 
-        columns = [field_mapping[k] for k in data.keys() if k in field_mapping]
-        values = [data[k] for k in data.keys() if k in field_mapping]
+        mapped_data = {field_mapping[k]: v for k, v in data.items() if k in field_mapping}
 
-        unique_keys = ['phone', 'email']
-        update_columns = [col for col in columns if col not in unique_keys]
-
-        insert_query = sql.SQL("""
-            INSERT INTO patients ({fields})
-            VALUES ({placeholders})
-            ON CONFLICT (phone, email)
-            DO UPDATE SET {updates}
-        """).format(
-            fields=sql.SQL(', ').join(map(sql.Identifier, columns)),
-            placeholders=sql.SQL(', ').join(sql.Placeholder() * len(columns)),
-            updates=sql.SQL(', ').join(
-                sql.Composed([
-                    sql.Identifier(col), sql.SQL(" = EXCLUDED."), sql.Identifier(col)
-                ]) for col in update_columns
-            )
-        )
-
-        # Debug log
-        print("SQL:", insert_query.as_string(conn))  # debug
-        print("Values:", values)
-
-        cur.execute(insert_query, values)
-        conn.commit()
+        # Upsert (insert or update) based on phone and email
+        response = conn.table("patients").upsert(mapped_data, on_conflict=["phone", "email"]).execute()
+        if hasattr(response, "status_code") and response.status_code >= 400:
+            raise Exception(f"Supabase upsert error: {response}")
         logging.info("Upsert (insert/update) data pasien berhasil.")
     except Exception as e:
         logging.error(f"Upsert gagal: {e}")
         raise
-    finally:
-        if cur:
-            cur.close()
-        if conn:
-            conn.close()
 
-def fetch_all_patient_data(): 
-    conn = None
-    cur = None
+def fetch_all_patient_data():
     try:
         conn = get_connection()
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM patients")
-        
-        columns = [desc[0] for desc in cur.description]
-        rows = cur.fetchall()
-
-        data = [dict(zip(columns, row)) for row in rows]
+        response = conn.table("patients").select("*").execute()
+        if hasattr(response, "status_code") and response.status_code >= 400:
+            raise Exception(f"Supabase fetch error: {response}")
+        data = response.data
         return data
-    
     except Exception as e:
         logging.error(f"Gagal mengambil data: {e}")
         raise
-    finally:
-        if cur:
-            cur.close()
-        if conn:
-            conn.close()
