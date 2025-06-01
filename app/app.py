@@ -135,8 +135,8 @@ with st.form("patient_data_form"):
                 "Skin Cancer": skin_cancer,
                 "General Health": genhealth,
                 "Sleep Time (hours)": sleep_time,
-                "Physical Health Days": physical_health_days,
-                "Mental Health Days": mental_health_days,
+                "Physical Health Days": 31 - physical_health_days,
+                "Mental Health Days": 31 - mental_health_days,
             }
 
             df = pd.DataFrame([form_data])
